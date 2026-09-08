@@ -3,3 +3,8 @@ spring:
     name: ecommerce
 server:
   port: 8081
+
+management:
+  endpoint:
+    metrics:
+      enabled: true
