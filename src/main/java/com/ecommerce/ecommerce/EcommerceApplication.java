@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.ecommerce.ecommerce.component_.UserController;
+import com.ecommerce.ecommerce.learning.component_.UserController;
 
 @SpringBootApplication
 public class EcommerceApplication {

@@ -1,4 +1,4 @@
-package com.ecommerce.ecommerce.component_;
+package com.ecommerce.ecommerce.learning.component_;
 
 import org.springframework.stereotype.Component;
 
