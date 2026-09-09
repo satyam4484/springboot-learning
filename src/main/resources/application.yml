@@ -8,4 +8,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: beans
+        include: health,info,metrics,beans
