@@ -1,9 +1,8 @@
 package com.ecom.ecommerce.entity;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -11,16 +10,16 @@ import lombok.Data;
 @Data
 public class Category {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @OneToMany(mappedBy = "category")
-private List<Product> products = new ArrayList<>();
+  @OneToMany(mappedBy = "category")
+  private List<Product> products = new ArrayList<>();
 
-    @Column(nullable = false, unique = true)
-    private String name;
+  @Column(nullable = false, unique = true)
+  private String name;
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+  @Column(columnDefinition = "TEXT")
+  private String description;
 }
