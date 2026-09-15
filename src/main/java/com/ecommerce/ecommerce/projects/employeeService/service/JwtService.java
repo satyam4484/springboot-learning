@@ -1,18 +1,12 @@
 package com.ecommerce.ecommerce.projects.employeeService.service;
 
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,19 +16,10 @@ public class JwtService {
     private final long expiration;
 
     public JwtService(
-            @Value("${jwt.secret}") String secret,
+            JwtEncoder jwtEncoder,
             @Value("${jwt.expiration}") long expiration) {
 
-        SecretKey secretKey = new SecretKeySpec(
-                secret.getBytes(),
-                "HmacSHA256"
-        );
-
-        this.jwtEncoder = NimbusJwtEncoder
-                .withSecretKey(secretKey)
-                .algorithm(MacAlgorithm.HS256)
-                .build();
-
+        this.jwtEncoder = jwtEncoder;
         this.expiration = expiration;
     }
 
