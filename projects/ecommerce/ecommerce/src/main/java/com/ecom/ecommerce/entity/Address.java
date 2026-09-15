@@ -12,8 +12,9 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne (fetch = FetchType.LAZY)
+    @JoinColumn (name="user_id", nullable = false)
+    private User userId;
 
     @Column(nullable = false)
     private String addressLine;
