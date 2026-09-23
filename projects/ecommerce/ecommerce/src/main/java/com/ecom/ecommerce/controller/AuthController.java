@@ -1,9 +1,11 @@
 package com.ecom.ecommerce.controller;
 
+import com.ecom.ecommerce.dto.ApiResponse;
 import com.ecom.ecommerce.dto.LoginRequest;
 import com.ecom.ecommerce.dto.RegisterRequest;
 import com.ecom.ecommerce.dto.TokenResponse;
 import com.ecom.ecommerce.service.AuthService;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,9 +31,17 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(
+    public ResponseEntity<ApiResponse<TokenResponse>> login(
             @Valid @RequestBody LoginRequest request) {
 
-        return ResponseEntity.ok(authService.login(request));
+        TokenResponse tokenResponse = authService.login(request);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Login successful",
+                        "/api/auth/login",
+                        tokenResponse
+                )
+        );
     }
 }
