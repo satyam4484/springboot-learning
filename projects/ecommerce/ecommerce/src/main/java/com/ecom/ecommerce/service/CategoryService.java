@@ -7,6 +7,8 @@ import com.ecom.ecommerce.exception.ApplicationException;
 import com.ecom.ecommerce.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,7 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
 
+    @CacheEvict(value = "categories", allEntries = true)
     @Transactional
     public CategoryDto createCategory(CategoryDto categoryDto) {
 
@@ -38,8 +41,11 @@ public class CategoryService {
         return modelMapper.map(savedCategory, CategoryDto.class);
     }
 
+    // 
+    @Cacheable("categories")
     @Transactional(readOnly = true)
     public List<CategoryDto> getAllCategories() {
+        System.out.println("Fetching categories from database...");
 
         return categoryRepository.findAll()
                 .stream()
@@ -62,6 +68,7 @@ public class CategoryService {
         return modelMapper.map(category, CategoryDto.class);
     }
 
+    @CacheEvict(value = "categories", allEntries = true)
     @Transactional
     public CategoryDto updateCategory(
             Long id,
@@ -94,6 +101,7 @@ public class CategoryService {
         return modelMapper.map(updatedCategory, CategoryDto.class);
     }
 
+    @CacheEvict(value = "categories", allEntries = true)
     @Transactional
     public void deleteCategory(Long id) {
 

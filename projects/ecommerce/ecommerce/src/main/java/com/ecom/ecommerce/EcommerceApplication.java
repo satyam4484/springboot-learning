@@ -3,7 +3,11 @@ package com.ecom.ecommerce;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+// import caching
+import org.springframework.cache.annotation.EnableCaching;
+
 @SpringBootApplication
+@EnableCaching
 public class EcommerceApplication {
 
   public static void main(String[] args) {
