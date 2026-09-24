@@ -41,12 +41,9 @@ public class CategoryService {
         return modelMapper.map(savedCategory, CategoryDto.class);
     }
 
-    // 
     @Cacheable("categories")
     @Transactional(readOnly = true)
     public List<CategoryDto> getAllCategories() {
-        System.out.println("Fetching categories from database...");
-
         return categoryRepository.findAll()
                 .stream()
                 .map(category -> modelMapper.map(category, CategoryDto.class))
