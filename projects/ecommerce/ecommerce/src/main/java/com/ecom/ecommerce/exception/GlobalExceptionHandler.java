@@ -38,4 +38,20 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(response);
     }
+
+    @ExceptionHandler(ApplicationException.class)
+public ResponseEntity<ApiResponse<Void>> handleApplicationException(
+        ApplicationException exception,
+        HttpServletRequest request) {
+
+    ApiResponse<Void> response = ApiResponse.failure(
+            exception.getMessage(),
+            exception.getErrorCode(),
+            request.getRequestURI()
+    );
+
+    return ResponseEntity
+            .status(exception.getStatus())
+            .body(response);
+}
 }

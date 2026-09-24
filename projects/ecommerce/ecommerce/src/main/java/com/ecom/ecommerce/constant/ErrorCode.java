@@ -1,6 +1,7 @@
 package com.ecom.ecommerce.constant;
 
 public enum ErrorCode {
+
     PRODUCT_NOT_FOUND,
     CATEGORY_NOT_FOUND,
     USER_NOT_FOUND,
