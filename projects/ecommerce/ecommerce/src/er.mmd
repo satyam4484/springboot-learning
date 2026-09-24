@@ -1,0 +1,64 @@
+classDiagram
+    direction TB
+
+    class User {
+        +Long id
+        +String name
+        +String email
+        +String passwordHash
+        +DateTime createdAt
+    }
+
+    class Address {
+        +Long id
+        +Long userId
+        +String addressLine
+        +String city
+        +String state
+        +String pincode
+        +String contactNo
+    }
+
+    class Order {
+        +Long id
+        +Long userId
+        +OrderStatus status
+        +Decimal totalAmount
+        +String shippingAddress
+        +DateTime createdAt
+        +DateTime updatedAt
+    }
+
+    class OrderItem {
+        +Long id
+        +Long orderId
+        +Long productId
+        +Integer quantity
+        +Decimal price
+    }
+
+    class Product {
+        +Long id
+        +Long categoryId
+        +String name
+        +String description
+        +Decimal price
+        +Integer stockQuantity
+        +DateTime createdAt
+        +DateTime updatedAt
+    }
+
+    class Category {
+        +Long id
+        +String name
+        +String description
+    }
+
+    User "1" --> "0..*" Address : has
+    User "1" --> "0..*" Order : places
+
+    Order "1" --> "1..*" OrderItem : contains
+
+    Product "1" --> "0..*" OrderItem : referenced by
+
+    Category "1" --> "0..*" Product : contains
