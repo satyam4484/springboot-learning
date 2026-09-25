@@ -2,6 +2,8 @@ package com.ecom.ecommerce.config;
 
 import java.time.Duration;
 
+import com.ecom.ecommerce.dto.CategoryDto;
+import com.ecom.ecommerce.dto.ProductDto;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -20,19 +22,41 @@ public class RedisConfig {
     public CacheManager cacheManager(
             RedisConnectionFactory connectionFactory) {
 
-        JacksonJsonRedisSerializer<Object> serializer =
-                new JacksonJsonRedisSerializer<>(Object.class);
+        JacksonJsonRedisSerializer<ProductDto> productSerializer =
+                new JacksonJsonRedisSerializer<>(ProductDto.class);
 
-        RedisCacheConfiguration cacheConfiguration =
+        JacksonJsonRedisSerializer<CategoryDto> categorySerializer =
+                new JacksonJsonRedisSerializer<>(CategoryDto.class);
+
+        RedisCacheConfiguration productConfig =
                 RedisCacheConfiguration.defaultCacheConfig()
                         .entryTtl(Duration.ofMinutes(10))
                         .serializeValuesWith(
                                 RedisSerializationContext.SerializationPair
-                                        .fromSerializer(serializer)
+                                        .fromSerializer(productSerializer)
+                        );
+
+        RedisCacheConfiguration categoryConfig =
+                RedisCacheConfiguration.defaultCacheConfig()
+                        .entryTtl(Duration.ofMinutes(30))
+                        .serializeValuesWith(
+                                RedisSerializationContext.SerializationPair
+                                        .fromSerializer(categorySerializer)
                         );
 
         return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(cacheConfiguration)
+                .withCacheConfiguration(
+                        "products",
+                        productConfig
+                )
+                .withCacheConfiguration(
+                        "categories",
+                        categoryConfig
+                )
+                .withCacheConfiguration(
+                        "productList",
+                        productConfig
+                )
                 .build();
     }
 }
