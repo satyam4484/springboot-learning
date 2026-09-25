@@ -19,7 +19,7 @@ public class Order {
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "user_id", nullable = false)
-  private User userId;
+  private User user;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
@@ -37,7 +37,11 @@ public class Order {
   @Column(nullable = false)
   private LocalDateTime updatedAt;
 
-  @OneToMany(mappedBy = "order")
+  @OneToMany(
+        mappedBy = "order",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+)
   private List<OrderItem> orderItems = new ArrayList<>();
 
   @PrePersist
