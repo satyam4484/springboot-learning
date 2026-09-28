@@ -1,0 +1,26 @@
+config:
+  target: "http://localhost:8080"
+
+  phases:
+    - duration: 30
+      arrivalRate: 2
+      name: "Warm up"
+
+    - duration: 60
+      arrivalRate: 10
+      name: "Normal load"
+
+    - duration: 60
+      arrivalRate: 25
+      name: "High load"
+
+  variables:
+    authToken: "eyJraWQiOiJPVmtaTE5xc3duS2pyRzRnSG9RWWw0aV96cHdQaGdOSlBVTkdMNzUxQ1lRIiwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJleHAiOjE3OTA1NzU2MzksInN1YiI6ImFkbWluQGcuY29tIiwiaWF0IjoxNzkwNTcyMDM5fQ.kTfQDh6z1CUevEQ4TTGKVzsOiPhH4XVr-MITwghT4Xo"
+
+scenarios:
+  - name: "Authenticated Product API"
+    flow:
+      - get:
+          url: "/api/products"
+          headers:
+            Authorization: "Bearer {{ authToken }}"

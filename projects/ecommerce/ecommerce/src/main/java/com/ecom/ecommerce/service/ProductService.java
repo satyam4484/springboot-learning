@@ -48,7 +48,7 @@ public class ProductService {
     return toDto(savedProduct);
   }
 
-  @Cacheable(value = "productList", key = "'all'")
+  @Cacheable(value = "productList", key = "'all'",sync = true)
   @Transactional(readOnly = true)
   public List<ProductDto> getAllProducts() {
     System.out.println("Fetching all products from database");

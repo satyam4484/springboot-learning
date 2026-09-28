@@ -80,8 +80,8 @@ public class OrderService {
 
       // 6.1 Find product
       Product product =
-          productRepository
-              .findById(itemRequest.getProductId())
+          productRepository.findByIdForUpdate(
+        itemRequest.getProductId())
               .orElseThrow(
                   () ->
                       new ApplicationException(
