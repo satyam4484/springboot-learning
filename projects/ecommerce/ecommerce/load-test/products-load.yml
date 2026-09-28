@@ -2,25 +2,33 @@ config:
   target: "http://localhost:8080"
 
   phases:
-    - duration: 30
-      arrivalRate: 2
-      name: "Warm up"
-
-    - duration: 60
-      arrivalRate: 10
-      name: "Normal load"
-
-    - duration: 60
-      arrivalRate: 25
-      name: "High load"
+    - duration: 1
+      arrivalCount: 100
+      name: "100 concurrent buyers"
 
   variables:
     authToken: "eyJraWQiOiJPVmtaTE5xc3duS2pyRzRnSG9RWWw0aV96cHdQaGdOSlBVTkdMNzUxQ1lRIiwidHlwIjoiSldUIiwiYWxnIjoiSFMyNTYifQ.eyJleHAiOjE3OTA1NzU2MzksInN1YiI6ImFkbWluQGcuY29tIiwiaWF0IjoxNzkwNTcyMDM5fQ.kTfQDh6z1CUevEQ4TTGKVzsOiPhH4XVr-MITwghT4Xo"
 
 scenarios:
-  - name: "Authenticated Product API"
+  # - name: "Authenticated Product API"
+  #   flow:
+  #     - get:
+  #         url: "/api/products"
+  #         headers:
+  #           Authorization: "Bearer {{ authToken }}"
+  # ---------------------------------
+  # Concurrent Order Creation
+  # ---------------------------------
+  - name: "Concurrent Order Creation"
+    weight: 1
     flow:
-      - get:
-          url: "/api/products"
+      - post:
+          url: "/api/orders"
           headers:
             Authorization: "Bearer {{ authToken }}"
+            Content-Type: "application/json"
+          json:
+            addressId: 1
+            items:
+              - productId: 2
+                quantity: 4

@@ -4,12 +4,14 @@ import com.ecom.ecommerce.constant.ErrorCode;
 import com.ecom.ecommerce.dto.CreateOrderRequest;
 import com.ecom.ecommerce.dto.OrderDto;
 import com.ecom.ecommerce.dto.OrderItemRequest;
+import com.ecom.ecommerce.dto.event.OrderCreatedEvent;
 import com.ecom.ecommerce.entity.Address;
 import com.ecom.ecommerce.entity.Order;
 import com.ecom.ecommerce.entity.OrderItem;
 import com.ecom.ecommerce.entity.Product;
 import com.ecom.ecommerce.entity.User;
 import com.ecom.ecommerce.exception.ApplicationException;
+import com.ecom.ecommerce.kafka.OrderEventProducer;
 import com.ecom.ecommerce.mapper.OrderMapper;
 import com.ecom.ecommerce.repository.AddressRepository;
 import com.ecom.ecommerce.repository.OrderRepository;
@@ -29,6 +31,7 @@ public class OrderService {
   private final ProductCacheEvictionService productCacheEvictionService;
   private final OrderMapper orderMapper;
   private final OrderRepository orderRepository;
+  private final OrderEventProducer orderEventProducer;
   private final ProductRepository productRepository;
   private final AddressRepository addressRepository;
   private final UserContextService userContextService;
@@ -40,15 +43,13 @@ public class OrderService {
     User user = userContextService.getLoggedInUser(authentication);
 
     // 2. Find selected address
-    Address address =
-        addressRepository
-            .findById(request.getAddressId())
-            .orElseThrow(
-                () ->
-                    new ApplicationException(
-                        "Address not found with id: " + request.getAddressId(),
-                        ErrorCode.ADDRESS_NOT_FOUND,
-                        HttpStatus.NOT_FOUND));
+    Address address = addressRepository
+        .findById(request.getAddressId())
+        .orElseThrow(
+            () -> new ApplicationException(
+                "Address not found with id: " + request.getAddressId(),
+                ErrorCode.ADDRESS_NOT_FOUND,
+                HttpStatus.NOT_FOUND));
 
     // 3. Make sure address belongs to logged-in user
     if (!address.getUser().getId().equals(user.getId())) {
@@ -57,16 +58,15 @@ public class OrderService {
     }
 
     // 4. Create shipping address snapshot
-    String shippingAddress =
-        address.getAddressLine()
-            + ", "
-            + address.getCity()
-            + ", "
-            + address.getState()
-            + " - "
-            + address.getPincode()
-            + ", Contact: "
-            + address.getContactNo();
+    String shippingAddress = address.getAddressLine()
+        + ", "
+        + address.getCity()
+        + ", "
+        + address.getState()
+        + " - "
+        + address.getPincode()
+        + ", Contact: "
+        + address.getContactNo();
 
     // 5. Create order
     Order order = new Order();
@@ -79,15 +79,13 @@ public class OrderService {
     for (OrderItemRequest itemRequest : request.getItems()) {
 
       // 6.1 Find product
-      Product product =
-          productRepository.findByIdForUpdate(
-        itemRequest.getProductId())
-              .orElseThrow(
-                  () ->
-                      new ApplicationException(
-                          "Product not found with id: " + itemRequest.getProductId(),
-                          ErrorCode.PRODUCT_NOT_FOUND,
-                          HttpStatus.NOT_FOUND));
+      Product product = productRepository.findByIdForUpdate(
+          itemRequest.getProductId())
+          .orElseThrow(
+              () -> new ApplicationException(
+                  "Product not found with id: " + itemRequest.getProductId(),
+                  ErrorCode.PRODUCT_NOT_FOUND,
+                  HttpStatus.NOT_FOUND));
 
       // 6.2 Check stock
       if (product.getStockQuantity() < itemRequest.getQuantity()) {
@@ -99,8 +97,7 @@ public class OrderService {
       }
 
       // 6.3 Calculate item total
-      BigDecimal itemTotal =
-          product.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
+      BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
 
       // 6.4 Create order item
       OrderItem orderItem = new OrderItem();
@@ -121,7 +118,8 @@ public class OrderService {
       // 6.5 Reduce product stock
       product.setStockQuantity(product.getStockQuantity() - itemRequest.getQuantity());
 
-      // invalidate product cache after stock update (!important for cache consistency)
+      // invalidate product cache after stock update (!important for cache
+      // consistency)
       productCacheEvictionService.evictProduct(product.getId());
 
       // Explicitly save updated stock
@@ -134,6 +132,14 @@ public class OrderService {
     // 8. Save order
     // OrderItems are saved automatically because of CascadeType.ALL
     Order savedOrder = orderRepository.save(order);
+    
+    OrderCreatedEvent event = new OrderCreatedEvent(
+        savedOrder.getId(),
+        user.getId(),
+        savedOrder.getTotalAmount(),
+        savedOrder.getCreatedAt());
+
+    orderEventProducer.publishOrderCreated(event);
 
     // 9. Convert entity to DTO
     return orderMapper.toDto(savedOrder);
@@ -146,15 +152,13 @@ public class OrderService {
     User user = userContextService.getLoggedInUser(authentication);
 
     // Find order
-    Order order =
-        orderRepository
-            .findById(id)
-            .orElseThrow(
-                () ->
-                    new ApplicationException(
-                        "Order not found with id: " + id,
-                        ErrorCode.ORDER_NOT_FOUND,
-                        HttpStatus.NOT_FOUND));
+    Order order = orderRepository
+        .findById(id)
+        .orElseThrow(
+            () -> new ApplicationException(
+                "Order not found with id: " + id,
+                ErrorCode.ORDER_NOT_FOUND,
+                HttpStatus.NOT_FOUND));
 
     // Check ownership
     if (!order.getUser().getId().equals(user.getId())) {
