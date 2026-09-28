@@ -1,10 +1,8 @@
 package com.ecom.ecommerce.config;
 
 import java.nio.charset.StandardCharsets;
-
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,60 +14,52 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
 
-        @Value("${jwt.secret}")
-        private String jwtSecret;
+  @Value("${jwt.secret}")
+  private String jwtSecret;
 
-        @Bean
-        public SecurityFilterChain securityFilterChain(
-                        HttpSecurity http) throws Exception {
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-                http
-                                .csrf(csrf -> csrf.disable())
+    http.csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers(
+                        "/api/auth/register",
+                        "/api/auth/login",
+                        "/actuator/health",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
+        .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {}));
 
-                                .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers(
-                                                                "/api/auth/register",
-                                                                "/api/auth/login",
-                                                                "/actuator/health",
-                                                                "/swagger-ui/**",
-                                                                "/swagger-ui.html",
-                                                                "/v3/api-docs/**")
-                                                .permitAll()
-                                                .anyRequest().authenticated())
+    return http.build();
+  }
 
-                                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> {
-                                }));
+  @Bean
+  public JwtDecoder jwtDecoder() {
 
-                return http.build();
-        }
+    SecretKey secretKey =
+        new SecretKeySpec(jwtSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
 
-        @Bean
-        public JwtDecoder jwtDecoder() {
+    return NimbusJwtDecoder.withSecretKey(secretKey).macAlgorithm(MacAlgorithm.HS256).build();
+  }
 
-                SecretKey secretKey = new SecretKeySpec(
-                                jwtSecret.getBytes(StandardCharsets.UTF_8),
-                                "HmacSHA256");
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-                return NimbusJwtDecoder
-                                .withSecretKey(secretKey)
-                                .macAlgorithm(MacAlgorithm.HS256)
-                                .build();
-        }
-
-        @Bean
-        public PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder();
-        }
-
-        @Bean
-        public AuthenticationManager authenticationManager(
-                        AuthenticationConfiguration configuration) throws Exception {
-                return configuration.getAuthenticationManager();
-        }
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+      throws Exception {
+    return configuration.getAuthenticationManager();
+  }
 }

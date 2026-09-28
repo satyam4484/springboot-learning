@@ -16,37 +16,33 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final AuthenticationManager authenticationManager;
+  private final JwtService jwtService;
 
-    public void register(RegisterRequest request) {
+  public void register(RegisterRequest request) {
 
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("User already exists");
-        }
-
-        User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setRole("USER");
-
-        userRepository.save(user);
+    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+      throw new RuntimeException("User already exists");
     }
 
-    public TokenResponse login(LoginRequest request) {
+    User user = new User();
+    user.setName(request.getName());
+    user.setEmail(request.getEmail());
+    user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+    user.setRole("USER");
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+    userRepository.save(user);
+  }
 
-        String token = jwtService.generateToken(request.getEmail());
+  public TokenResponse login(LoginRequest request) {
 
-        return new TokenResponse(token);
-    }
+    authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+
+    String token = jwtService.generateToken(request.getEmail());
+
+    return new TokenResponse(token);
+  }
 }

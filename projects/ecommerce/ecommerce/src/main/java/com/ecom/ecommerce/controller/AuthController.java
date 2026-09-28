@@ -5,7 +5,6 @@ import com.ecom.ecommerce.dto.LoginRequest;
 import com.ecom.ecommerce.dto.RegisterRequest;
 import com.ecom.ecommerce.dto.TokenResponse;
 import com.ecom.ecommerce.service.AuthService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,31 +16,23 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+  private final AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<Void> register(
-            @Valid @RequestBody RegisterRequest request) {
+  @PostMapping("/register")
+  public ResponseEntity<Void> register(@Valid @RequestBody RegisterRequest request) {
 
-        authService.register(request);
+    authService.register(request);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .build();
-    }
+    return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
 
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<TokenResponse>> login(
-            @Valid @RequestBody LoginRequest request) {
+  @PostMapping("/login")
+  public ResponseEntity<ApiResponse<TokenResponse>> login(
+      @Valid @RequestBody LoginRequest request) {
 
-        TokenResponse tokenResponse = authService.login(request);
+    TokenResponse tokenResponse = authService.login(request);
 
-        return ResponseEntity.ok(
-                ApiResponse.success(
-                        "Login successful",
-                        "/api/auth/login",
-                        tokenResponse
-                )
-        );
-    }
+    return ResponseEntity.ok(
+        ApiResponse.success("Login successful", "/api/auth/login", tokenResponse));
+  }
 }

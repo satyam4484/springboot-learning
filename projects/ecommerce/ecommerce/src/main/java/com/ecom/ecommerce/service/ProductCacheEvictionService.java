@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProductCacheEvictionService {
 
-    @CacheEvict(value = "products", key = "#productId")
-    public void evictProduct(Long productId) {
-    }
+  @CacheEvict(value = "products", key = "#productId")
+  public void evictProduct(Long productId) {}
 }

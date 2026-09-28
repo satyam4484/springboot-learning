@@ -8,17 +8,14 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(
-                title = "E-Commerce API",
-                version = "1.0",
-                description = "REST APIs for E-Commerce Application"
-        )
-)
+    info =
+        @Info(
+            title = "E-Commerce API",
+            version = "1.0",
+            description = "REST APIs for E-Commerce Application"))
 @SecurityScheme(
-        name = "bearerAuth",
-        type = SecuritySchemeType.HTTP,
-        scheme = "bearer",
-        bearerFormat = "JWT"
-)
-public class OpenApiConfig {
-}
+    name = "bearerAuth",
+    type = SecuritySchemeType.HTTP,
+    scheme = "bearer",
+    bearerFormat = "JWT")
+public class OpenApiConfig {}

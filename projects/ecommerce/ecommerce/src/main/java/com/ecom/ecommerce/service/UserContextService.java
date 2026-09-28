@@ -13,18 +13,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserContextService {
 
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    public User getLoggedInUser(Authentication authentication) {
+  public User getLoggedInUser(Authentication authentication) {
 
-        String email = authentication.getName();
+    String email = authentication.getName();
 
-        return userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new ApplicationException(
-                                "Logged in user not found",
-                                ErrorCode.USER_NOT_FOUND,
-                                HttpStatus.NOT_FOUND
-                        ));
-    }
+    return userRepository
+        .findByEmail(email)
+        .orElseThrow(
+            () ->
+                new ApplicationException(
+                    "Logged in user not found", ErrorCode.USER_NOT_FOUND, HttpStatus.NOT_FOUND));
+  }
 }
